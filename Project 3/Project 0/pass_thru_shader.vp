@@ -1,0 +1,50 @@
+#version 120
+
+uniform mat4x4 MVPMatrix;
+uniform mat3x3 normalMatrix;
+uniform mat4x4 MVMatrix;
+
+in vec4 vVertex;
+in vec4 vColor;
+
+out vec4 vVaryingColor;
+
+uniform vec3 ambientLight;
+
+struct pointLight {
+	vec3  position;
+	vec3  color;
+	float attenuation0;
+	float attenuation1;
+	float attenuation2;
+	float angle;
+};
+
+uniform pointLight light1;
+
+struct materialProperties {
+	vec3  ambientColor;
+	vec3  diffuseColor;
+	vec3  specularColor;
+	float specularExponent;
+};
+
+uniform materialProperties material;
+
+void main() {
+
+	vec4 positionInEyeSpace4 = MVMatrix * vVertex;
+	vec3 positionInEyeSpace3 = positionInEyeSpace4.xyz / positionInEyeSpace4.w;
+	vec3 normalInEyeSpace = normalMatrix * vNormal;
+    gl_Position = MVMatrix*vVertex;
+
+	vec3 lightDir = normalize(normalize(light1.position - positionInEyeSpace3));
+    float diff = max(0.0, dot(normalInEyeSpace, lightDir));
+
+    vVaryingColor.rgb = material.ambientColor;
+    vVaryingColor.a = 1.0;
+    vVaryingColor.rgb += diff*material.diffuseColor*light1.color;
+
+    vVaryingColor = vColor;
+    gl_Position = MVPMatrix*vVertex;
+}
