@@ -1,0 +1,29 @@
+#version 120
+
+uniform mat4x4 MVPMatrix;
+uniform mat3x3 normalMatrix;
+uniform mat4x4 MVMatrix;
+
+in vec4 vVertex;
+in vec4 vColor;
+in vec3 vNormal;
+in vec2 texCoord0;
+
+uniform vec3 lightPosition;
+
+smooth out vec2 varyingTexCoord;
+smooth out vec3 varyingNormal;
+smooth out vec3 varyingLightDirection;
+smooth out vec3 varyingPosition;
+
+void main() {
+	varyingTexCoord = texCoord0;
+	varyingNormal = normalMatrix*vNormal;
+
+	vec4 position4 = MVMatrix*vVertex;
+	vec3 position3 = position4.xyz/position4.w;
+	varyingPosition = position3;
+
+	varyingLightDirection = normalize(lightPosition-position3);
+	gl_Position = MVPMatrix*vVertex;
+}
